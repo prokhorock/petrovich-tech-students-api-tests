@@ -1,55 +1,61 @@
-import uuid
+from conftest import make_student_payload
+import allure
 
 
-def test_create_student(client):
-    payload = {
-        "name": "Create Test",
-        "email": f"create_{uuid.uuid4().hex}@test.com",
-        "phone_no": "+79990001122",
-        "gender": "male",
-        "status": 1,
-    }
-    resp = client.create_student(payload)
-    assert resp.status_code == 200
+@allure.story("Позитивные")
+class TestStudentsPositive:
 
-    student_id = resp.json()["student"]["id"]
-    client.delete_student(student_id)
+    @allure.title("Создать студента")
+    def test_create_student(self, client):
+        payload = make_student_payload()
+        resp = client.create_student(payload)
+        body = resp.json()
+        assert resp.status_code == 200
+        assert body["status"] == 1
+
+        student_id = body["student"]["id"]
+        client.delete_student(student_id)
+
+    @allure.title("Получить студента по id")
+    def test_get_student(self, client, student):
+        resp = client.get_student(student)
+        assert resp.status_code == 200
+        assert resp.json()["student"]["id"] == student
+
+    @allure.title("Найти созданного студента в списке")
+    def test_get_students_list(self, client, student):
+        resp = client.get_students_list()
+        body = resp.json()
+        assert resp.status_code == 200
+        assert body["status"] == 1
+        assert any(item["id"] == student for item in body["students"])
+
+    @allure.title("Обновить студента")
+    def test_update_student(self, client, student):
+        payload = make_student_payload(gender="female", status=0)
+        payload.pop("phone_no")
+        resp = client.update_student(student, payload)
+        body = resp.json()
+        assert resp.status_code == 200
+        assert body["status"] == 1
+        assert body["student"]["name"] == payload["name"]
+
+    @allure.title("Удалить студента")
+    def test_delete_student(self, client):
+        payload = make_student_payload()
+        create_resp = client.create_student(payload)
+        create_body = create_resp.json()
+        assert create_resp.status_code == 200
+        assert create_body["status"] == 1
+        student_id = create_body["student"]["id"]
+
+        resp = client.delete_student(student_id)
+        assert resp.status_code == 200
+        assert resp.json()["status"] == 1
+
+        get_resp = client.get_student(student_id)
+        get_body = get_resp.json()
+        assert get_resp.status_code == 200
+        assert get_body["status"] == 0
 
 
-def test_get_student(client, student):
-    resp = client.get_student(student)
-    assert resp.status_code == 200
-    assert resp.json()["student"]["id"] == student
-
-
-def test_get_students_list(client):
-    resp = client.get_students_list()
-    assert resp.status_code == 200
-    assert "students" in resp.json()
-
-
-def test_update_student(client, student):
-    payload = {
-        "name": "Updated Name",
-        "email": f"upd_{uuid.uuid4().hex}@test.com",
-        "gender": "female",
-        "status": 0,
-    }
-    resp = client.update_student(student, payload)
-    assert resp.status_code == 200
-    assert resp.json()["student"]["name"] == "Updated Name"
-
-
-def test_delete_student(client):
-    payload = {
-        "name": "Delete Test",
-        "email": f"del_{uuid.uuid4().hex}@test.com",
-        "phone_no": "+79990001122",
-        "gender": "male",
-        "status": 1,
-    }
-    create_resp = client.create_student(payload)
-    student_id = create_resp.json()["student"]["id"]
-
-    resp = client.delete_student(student_id)
-    assert resp.status_code == 200
