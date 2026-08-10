@@ -1,4 +1,4 @@
-from conftest import make_student_payload
+from conftest import make_student_payload, wait_student_readable
 import allure
 
 
@@ -48,6 +48,7 @@ class TestStudentsPositive:
         assert create_resp.status_code == 200
         assert create_body["status"] == 1
         student_id = create_body["student"]["id"]
+        wait_student_readable(client, student_id)
 
         resp = client.delete_student(student_id)
         assert resp.status_code == 200

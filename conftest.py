@@ -2,6 +2,7 @@ import random
 import uuid
 import pytest
 from src.clients.students_client import StudentsClient
+import time
 
 
 def make_student_payload(**overrides):
@@ -17,6 +18,16 @@ def make_student_payload(**overrides):
     return payload
 
 
+def wait_student_readable(client, student_id, attempts=15, delay=0.3):
+    for attempt in range(attempts):
+        resp = client.get_student(student_id)
+        body = resp.json()
+        if resp.status_code == 200 and body.get("status") == 1:
+            return body
+        time.sleep(delay)
+    raise AssertionError(f"Student {student_id} not readable after create")
+
+
 @pytest.fixture
 def client():
     return StudentsClient()
@@ -30,7 +41,7 @@ def student(client):
     assert resp.status_code == 200
     assert body["status"] == 1
     student_id = body["student"]["id"]
+    wait_student_readable(client, student_id)
     yield student_id
     client.delete_student(student_id)
-
 
