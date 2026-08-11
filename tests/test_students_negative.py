@@ -1,3 +1,5 @@
+import time
+
 import allure
 import pytest
 from src.utils.student_payload import make_student_payload
@@ -146,7 +148,7 @@ class TestStudentsNegative:
 
     @allure.title("Обновить студента с неполным телом")
     def test_update_student_partial_body(self, client, student):
-        resp = client.update_student(student, {"name": "Only Name"})
+        resp = client.update_student(student["id"], {"name": "Only Name"})
         body = resp.json()
         assert resp.status_code == 200
         assert body["status"] == 0
@@ -154,12 +156,10 @@ class TestStudentsNegative:
 
     @allure.title("Обновить студента с phone_no в теле")
     def test_update_student_with_phone_no(self, client, student):
-        before = client.get_student(student).json()
-        assert before["status"] == 1
-        old_phone = before["student"]["phone_no"]
+        old_phone = student["payload"]["phone_no"]
 
         payload = make_student_payload(gender="female", status=1)
-        resp = client.update_student(student, payload)
+        resp = client.update_student(student["id"], payload)
         body = resp.json()
         assert resp.status_code == 200
         assert body["status"] == 1
@@ -167,7 +167,7 @@ class TestStudentsNegative:
         assert body["student"]["name"] == payload["name"]
         assert body["student"]["email"] == payload["email"]
 
-        after = client.get_student(student).json()["student"]
+        after = client.get_student(student["id"]).json()["student"]
         assert after["phone_no"] == old_phone
         assert after["name"] == payload["name"]
         assert after["gender"] == payload["gender"]
@@ -183,7 +183,7 @@ class TestStudentsNegative:
         allure.dynamic.title(f"Обновить студента с невалидным {field}")
         payload = make_student_payload(**{field: value})
         payload.pop("phone_no")
-        resp = client.update_student(student, payload)
+        resp = client.update_student(student["id"], payload)
         body = resp.json()
         assert resp.status_code == 200
         assert body["status"] == 0

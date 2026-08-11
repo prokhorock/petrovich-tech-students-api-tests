@@ -33,6 +33,6 @@ def student(client):
     assert body["status"] == 1
     student_id = body["student"]["id"]
     wait_student_readable(client, student_id)
-    yield student_id
+    yield {"id": student_id, "payload": payload}
     client.delete_student(student_id)
 
