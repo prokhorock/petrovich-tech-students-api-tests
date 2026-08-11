@@ -1,6 +1,6 @@
 import allure
 import pytest
-from conftest import make_student_payload
+from src.utils.student_payload import make_student_payload
 
 
 @allure.story("Негативные")
@@ -15,6 +15,7 @@ class TestStudentsNegative:
         body = resp.json()
         assert resp.status_code == 200
         assert body["status"] == 0
+        assert body.get("message")
 
     @pytest.mark.parametrize(
         "field, value",
@@ -30,6 +31,7 @@ class TestStudentsNegative:
         body = resp.json()
         assert resp.status_code == 200
         assert body["status"] == 0
+        assert body.get("message")
 
     @allure.title("Создать студента с пустым телом")
     def test_create_student_empty_body(self, client):
@@ -37,6 +39,7 @@ class TestStudentsNegative:
         body = resp.json()
         assert resp.status_code == 200
         assert body["status"] == 0
+        assert body.get("message")
 
     @allure.title("Получить несуществующего студента")
     def test_get_student_not_found(self, client):
@@ -69,6 +72,7 @@ class TestStudentsNegative:
         body = resp.json()
         assert resp.status_code == 200
         assert body["status"] == 0
+        assert body.get("message")
 
     @allure.title("Обновить студента с неполным телом")
     def test_update_student_partial_body(self, client, student):
@@ -76,6 +80,7 @@ class TestStudentsNegative:
         body = resp.json()
         assert resp.status_code == 200
         assert body["status"] == 0
+        assert body.get("message")
 
     @allure.title("Обновить студента с phone_no в теле")
     def test_update_student_with_phone_no(self, client, student):
@@ -89,10 +94,13 @@ class TestStudentsNegative:
         assert resp.status_code == 200
         assert body["status"] == 1
         assert body["student"]["phone_no"] == old_phone
+        assert body["student"]["name"] == payload["name"]
+        assert body["student"]["email"] == payload["email"]
 
         after = client.get_student(student).json()["student"]
         assert after["phone_no"] == old_phone
         assert after["name"] == payload["name"]
+        assert after["gender"] == payload["gender"]
 
     @pytest.mark.parametrize(
         "field, value",

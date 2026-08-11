@@ -1,10 +1,9 @@
-import random
-import uuid
 import pytest
 import allure
 from src.clients.students_client import StudentsClient
 from src.utils.allure_logger import http_logs
-import time
+from src.utils.student_payload import make_student_payload
+from src.utils.waits import wait_student_readable
 
 
 @pytest.fixture(autouse=True)
@@ -18,29 +17,6 @@ def attach_test_http_log():
             attachment_type=allure.attachment_type.TEXT,
         )
     http_logs.clear()
-
-
-def make_student_payload(**overrides):
-    suffix = uuid.uuid4().hex[:10]
-    payload = {
-        "name": f"Student {suffix}",
-        "email": f"student_{suffix}@test.com",
-        "phone_no": f"+7{random.randint(9000000000, 9999999999)}",
-        "gender": "male",
-        "status": 1,
-    }
-    payload.update(overrides)
-    return payload
-
-
-def wait_student_readable(client, student_id, attempts=15, delay=0.3):
-    for attempt in range(attempts):
-        resp = client.get_student(student_id)
-        body = resp.json()
-        if resp.status_code == 200 and body.get("status") == 1:
-            return body
-        time.sleep(delay)
-    raise AssertionError(f"Student {student_id} not readable after create")
 
 
 @pytest.fixture
