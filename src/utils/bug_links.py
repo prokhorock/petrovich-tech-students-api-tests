@@ -1,0 +1,7 @@
+BUG_01 = "https://docs.google.com/spreadsheets/d/1PYdP2oZokkOvqkLIu3CehqCfOMiH-TAwvoPrN5y9I08/edit?gid=0#gid=0&range=A1"
+BUG_02 = "https://docs.google.com/spreadsheets/d/1PYdP2oZokkOvqkLIu3CehqCfOMiH-TAwvoPrN5y9I08/edit?gid=0#gid=0&range=A11"
+BUG_03 = "https://docs.google.com/spreadsheets/d/1PYdP2oZokkOvqkLIu3CehqCfOMiH-TAwvoPrN5y9I08/edit?gid=0#gid=0&range=A20"
+BUG_04 = "https://docs.google.com/spreadsheets/d/1PYdP2oZokkOvqkLIu3CehqCfOMiH-TAwvoPrN5y9I08/edit?gid=0#gid=0&range=A30"
+BUG_05 = "https://docs.google.com/spreadsheets/d/1PYdP2oZokkOvqkLIu3CehqCfOMiH-TAwvoPrN5y9I08/edit?gid=0#gid=0&range=A40"
+BUG_06 = "https://docs.google.com/spreadsheets/d/1PYdP2oZokkOvqkLIu3CehqCfOMiH-TAwvoPrN5y9I08/edit?gid=0#gid=0&range=A50"
+BUG_07 = "https://docs.google.com/spreadsheets/d/1PYdP2oZokkOvqkLIu3CehqCfOMiH-TAwvoPrN5y9I08/edit?gid=0#gid=0&range=A60"

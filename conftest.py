@@ -29,8 +29,8 @@ def student(client):
     payload = make_student_payload()
     resp = client.create_student(payload)
     body = resp.json()
-    assert resp.status_code == 200
-    assert body["status"] == 1
+    assert resp.status_code == 200, f"не удалось создать студента: {resp.status_code}"
+    assert body["status"] == 1, f"не удалось создать студента: {body}"
     student_id = body["student"]["id"]
     wait_student_readable(client, student_id)
     yield {"id": student_id, "payload": payload}
