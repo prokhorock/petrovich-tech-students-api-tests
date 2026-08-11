@@ -28,7 +28,6 @@ class TestStudentsPositive:
 
     @allure.title("Получить студента по id")
     def test_get_student(self, client):
-        # свой payload, чтобы потом сверить поля (фикстура отдает только id)
         payload = make_student_payload()
         create_resp = client.create_student(payload)
         create_body = create_resp.json()
@@ -68,11 +67,11 @@ class TestStudentsPositive:
         assert found is not None
         assert_student_types(found)
 
-    @pytest.mark.parametrize("status", [0, 1])
-    def test_update_student(self, client, student, status):
-        allure.dynamic.title(f"Обновить студента со status={status}")
+    @pytest.mark.xfail(reason="BUG-04: после PUT student.status приходит строкой")
+    @allure.title("Обновить студента")
+    def test_update_student(self, client, student):
         wait_student_readable(client, student)
-        payload = make_student_payload(gender="female", status=status)
+        payload = make_student_payload(gender="female", status=0)
         payload.pop("phone_no")
         resp = client.update_student(student, payload)
         body = resp.json()

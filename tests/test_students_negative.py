@@ -41,6 +41,76 @@ class TestStudentsNegative:
         assert body["status"] == 0
         assert body.get("message")
 
+    @pytest.mark.parametrize("field", ["email", "phone_no"])
+    @pytest.mark.xfail(reason="BUG-05: API принимает дубликаты email/phone_no")
+    def test_create_duplicate_field(self, client, field):
+        allure.dynamic.title(f"Создать студента с дубликатом {field}")
+        payload = make_student_payload()
+        first = client.create_student(payload).json()
+        assert first["status"] == 1
+        student_id = first["student"]["id"]
+
+        dup_id = None
+        try:
+            dup_payload = make_student_payload()
+            dup_payload[field] = payload[field]
+            resp = client.create_student(dup_payload)
+            body = resp.json()
+            if body.get("status") == 1 and body.get("student"):
+                dup_id = body["student"]["id"]
+            assert resp.status_code == 200
+            assert body["status"] == 0
+            assert body.get("message")
+        finally:
+            client.delete_student(student_id)
+            if dup_id:
+                client.delete_student(dup_id)
+
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "name",
+            pytest.param(
+                "email",
+                marks=pytest.mark.xfail(reason="BUG-06: API принимает пустой email"),
+            ),
+            "phone_no",
+        ],
+    )
+    def test_create_empty_required_field(self, client, field):
+        allure.dynamic.title(f"Создать студента с пустым {field}")
+        payload = make_student_payload()
+        payload[field] = ""
+        resp = client.create_student(payload)
+        body = resp.json()
+        created_id = None
+        if body.get("status") == 1 and body.get("student"):
+            created_id = body["student"]["id"]
+        try:
+            assert resp.status_code == 200
+            assert body["status"] == 0
+            assert body.get("message")
+        finally:
+            if created_id:
+                client.delete_student(created_id)
+
+    @pytest.mark.xfail(reason="BUG-06: API принимает невалидный email")
+    @allure.title("Создать студента с невалидным email")
+    def test_create_invalid_email(self, client):
+        payload = make_student_payload(email="not-email")
+        resp = client.create_student(payload)
+        body = resp.json()
+        created_id = None
+        if body.get("status") == 1 and body.get("student"):
+            created_id = body["student"]["id"]
+        try:
+            assert resp.status_code == 200
+            assert body["status"] == 0
+            assert body.get("message")
+        finally:
+            if created_id:
+                client.delete_student(created_id)
+
     @allure.title("Получить несуществующего студента")
     def test_get_student_not_found(self, client):
         resp = client.get_student(99999999)
