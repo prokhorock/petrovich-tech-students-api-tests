@@ -18,7 +18,7 @@ BASE_URL=http://93.77.188.34
 
 Запуск тестов:
 ```bash
-pytest
+pytest -n auto
 ```
 
 Результаты Allure складываются в `allure-results`.

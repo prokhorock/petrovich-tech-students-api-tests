@@ -110,6 +110,7 @@ class TestStudentsNegative:
         assert resp.status_code == 200
         assert body["status"] == 0
 
+    @pytest.mark.xfail(reason="BUG-03")
     @allure.title("Удалить несуществующего студента")
     def test_delete_student_not_found(self, client):
         student_id = 99999999

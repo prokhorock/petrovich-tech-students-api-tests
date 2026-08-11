@@ -1,6 +1,8 @@
 import allure
 import requests
 
+http_logs = []
+
 
 def attach_http_log(response: requests.Response):
     request = response.request
@@ -19,5 +21,4 @@ def attach_http_log(response: requests.Response):
         f"time: {response.elapsed.total_seconds()}s"
     )
     allure.attach(text, name="http log", attachment_type=allure.attachment_type.TEXT)
-
-
+    http_logs.append(text)

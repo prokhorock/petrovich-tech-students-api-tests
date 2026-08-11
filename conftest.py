@@ -1,8 +1,23 @@
 import random
 import uuid
 import pytest
+import allure
 from src.clients.students_client import StudentsClient
+from src.utils.allure_logger import http_logs
 import time
+
+
+@pytest.fixture(autouse=True)
+def attach_test_http_log():
+    http_logs.clear()
+    yield
+    if http_logs:
+        allure.attach(
+            "\n\n---\n\n".join(http_logs),
+            name="http log",
+            attachment_type=allure.attachment_type.TEXT,
+        )
+    http_logs.clear()
 
 
 def make_student_payload(**overrides):
