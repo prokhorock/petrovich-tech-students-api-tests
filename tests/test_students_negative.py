@@ -1,5 +1,3 @@
-import time
-
 import allure
 import pytest
 from src.utils.student_payload import make_student_payload
@@ -157,8 +155,9 @@ class TestStudentsNegative:
     @allure.title("Обновить студента с phone_no в теле")
     def test_update_student_with_phone_no(self, client, student):
         old_phone = student["payload"]["phone_no"]
+        old_gender = student["payload"]["gender"]
 
-        payload = make_student_payload(gender="female", status=1)
+        payload = make_student_payload(gender=old_gender, status=1)
         resp = client.update_student(student["id"], payload)
         body = resp.json()
         assert resp.status_code == 200
@@ -170,7 +169,7 @@ class TestStudentsNegative:
         after = client.get_student(student["id"]).json()["student"]
         assert after["phone_no"] == old_phone
         assert after["name"] == payload["name"]
-        assert after["gender"] == payload["gender"]
+        assert after["gender"] == old_gender
 
     @pytest.mark.parametrize(
         "field, value",

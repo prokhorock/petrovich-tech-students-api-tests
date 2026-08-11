@@ -1,3 +1,4 @@
+import time
 import allure
 import pytest
 from src.utils.student_payload import make_student_payload
@@ -60,8 +61,8 @@ class TestStudentsPositive:
         assert found["email"] == student["payload"]["email"]
 
     @pytest.mark.xfail(reason="BUG-04: после PUT student.status приходит строкой")
-    @allure.title("Обновить студента")
-    def test_update_student(self, client, student):
+    @allure.title("Ответ при обновлении студента")
+    def test_update_student_response(self, client, student):
         wait_student_readable(client, student["id"])
         payload = make_student_payload(gender="female", status=0)
         payload.pop("phone_no")
@@ -77,6 +78,23 @@ class TestStudentsPositive:
         assert updated["email"] == payload["email"]
         assert updated["gender"] == payload["gender"]
         assert updated["status"] == payload["status"]
+
+    @pytest.mark.xfail(reason="BUG-07: gender не сохраняется после PUT")
+    @allure.title("Обновление студента сохраняется")
+    def test_update_student_persisted(self, client, student):
+        wait_student_readable(client, student["id"])
+        payload = make_student_payload(gender="female", status=1)
+        payload.pop("phone_no")
+        resp = client.update_student(student["id"], payload)
+        assert resp.status_code == 200
+        assert resp.json()["status"] == 1
+        # time.sleep(10)
+        after = client.get_student(student["id"]).json()["student"]
+        assert after["id"] == student["id"]
+        assert after["name"] == payload["name"]
+        assert after["email"] == payload["email"]
+        assert after["gender"] == payload["gender"]
+        assert after["phone_no"] == student["payload"]["phone_no"]
 
     @allure.title("Удалить студента")
     def test_delete_student(self, client, student):
